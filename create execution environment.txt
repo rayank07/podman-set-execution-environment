@@ -1,0 +1,88 @@
+#################################
+
+Step 1: Install the execution environment builder tool (9)
+Step 2: Build the execution environment(6,7,10-16)
+step 3: Install Podman and tag the image to a repo and pushing it to public/private hub/repo. (4-5,17-28)
+
+#################################
+
+
+1. sudo apt-get update    												# To Update the apt-get
+2. sudo apt-get -y install podman										# To install Podman
+3. python3 --version													# To check python version
+4. podman images														# To List of all container which are store in the system along with details (repository,tag,imageId,size,date)
+5. podman ps															# To list all the RUNNING container with details(container ID,IMAGE,command,created,status,PORT)
+6. mkdir test-podman													# Create a Directory
+7. cd test-podman														# Everything must be done in that directory
+8. sudo apt install python3-pip											# To install pip
+
+
+
+9. python3 pip install ansible-builder/ pip install ansible-builder		# To install ansible builder.
+#######################################
+10. vi execution-environment.yml
+---
+version: 1
+build_arg_defaults:
+  EE_BASE_IMAGE: quay.io/ansible/awx-ee:latest                  
+  EE_BUILDER_IMAGE: quay.io/ansible/ansible-builder:latest
+dependencies:
+  galaxy: requiredModules.yml
+  python: requirements.txt
+additional_build_steps:
+  prepend:																# Commands to insert before building of the final image.
+    - RUN dnf upgrade -y												# To upgrade all install packages, DNF package manager
+    - RUN pip3 install --upgrade pip setuptools							# Setuptool is a python library package
+#######################################
+
+#######################################
+11. vi requiredModules.yml
+
+---
+
+collections:
+
+  - name: ansible.utils
+
+  - name: communnity.general
+
+  - name: amazon.aws
+#######################################
+
+#######################################
+12. vi requirements.txt
+ansible
+netmiko																	# Netmiko is an open source SSH python library
+#######################################
+
+
+13. sudo apt install python3-virtualenv									# To install the virtualenv package, it helps to setup the virtual env for python 3 project, it helps to manage the project specific dependencies,which allows you to manage project-specific dependencies and avoid conflicts between different Python projects. 
+14. virtualenv -p python3.10 venv-ee-demo								# To create a virtual env named "venv-ee-demo"
+15. source venv-ee-demo/bin/activate									# To activate the virtual env, 'venv-ee-demo/bin/activate' this is the path of the shell script, 'souce' is the shell command used to execute the contents of a shell script. One new prompt will be create.										
+16. ansible-builder build -t rayank_modules -v 3						# To build an ansible collection. "-t" or "--tag" option specifies a unique tag or name for the Ansible collection, "-v" level 3 of vervosity.
+17. podman create -it --name rayank-mods localhost/rayank_modules:latest # "-it" use to interact with the container's shell. "rayank_modules" = anisble collection name(image name), "rayank-mods" is the name of the container. "localhost/rayank_modules:latest" from this path, podman will pull the anisble image.														
+18. podman start rayank-mods											# To start the container.
+19. podman ps -a														# List all the process, to check whether the new process is available or no
+
+														
+20. login to quay.io													
+21. create a repo
+22. copy repo name -> quay.io/harshbaghel07/harsh
+23. poddman exec -it rayank-mods bash								 # To execute the container, "bash" is the command, it starts an interactive Bash shell inside the container.
+24. podman tag localhost/rayank_modules:latest quay.io/harshbaghel07/harsh #The source image "localhost/rayank_modules:latest" will be tagged with the new repository "quay.io/harshbaghel07/harsh." This helps to pushing the image to a different container registry or making it accessible to others.
+25. podman login quay.io, give username and password
+26. podman container commit rayank-mods quay.io/harshbaghel07/harsh:25  # To commit the image in the repo, 25 is the tag.
+27. podman image push quay.io/harshbaghel07/harsh:25					# "podman image push" command is used to push a container image to a container registry
+28. podman logout quay.io
+29. login to ansible tower -> execution enverioment -> add -> name -> "ansible-77" image->"quay.io/harshbaghel07/harsh:25", pull ???
+
+
+
+30. podman ps- a
+31. ansible-galaxy collection list										# TO list of installed collections along with information about the collection's name, version, and the namespace it belongs to.
+32. login to tower and update the execution env with the new tag 
+
+
+Link for reference(from Rinki)
+https://capgemini-my.sharepoint.com/personal/rinki_kundu_capgemini_com/Documents/Microsoft%20Teams%20Chat%20Files/execution_env%20(1).txt
+
