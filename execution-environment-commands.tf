@@ -49,14 +49,11 @@ netmiko
 20. podman ps -a
 21. podman start rayank-mods
 22. podman ps -a
-23. login to quay.io
-24. create a repo
-25. copy repo name -> quay.io/harshbaghel07/harsh
-26. poddman exec -it rinki-mods bash
+26. poddman exec -it rayank-mod bash
 27. podman tag localhost/rayank_modules:latest quay.io/harshbaghel07/harsh
 28. podman login quay.io
 29. give username and password
-30. podman container commit rinki-mods quay.io/harshbaghel07/harsh:25
+30. podman container commit rayank-mod quay.io/harshbaghel07/harsh:25
 31. podman image push quay.io/harshbaghel07/harsh:25
 32. podman logout quay.io
 33. login to ansible tower -> execution enverioment
