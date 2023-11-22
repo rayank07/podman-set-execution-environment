@@ -1,3 +1,5 @@
+# spin a aws machine having atleast 40gb of volume 
+
 1. sudo apt-get update
 2. sudo apt-get -y install podman
 3. python3 --version
